@@ -1,7 +1,7 @@
 from pymongo import MongoClient
 import os
-from dotenv import load_dotenv
-load_dotenv
+
+
 
 # Optional: Default/fallback URI for development
 DEFAULT_MONGODB_URI = "mongodb+srv://mithilsurya:U3trt0r26AqHjJO6@cluster0.hxdyf7f.mongodb.net/"
