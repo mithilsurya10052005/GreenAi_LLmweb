@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-6xl mx-auto">
+  <!-- Sticky query header -->
+  <div class="bg-gray-800 rounded-xl shadow-lg p-4 border-2 border-gray-700 sticky top-20 z-10">
+    <div class="flex justify-between items-center text-white">
+      <p class="font-bold text-2xl text-center">File {{ current_group_idx + 1 }} of {{ total_groups }}</p>
+    </div>
+    <h2 class="text-white text-center whitespace-pre-wrap">{{ current_group["file"] }}</h2>
+  </div>
+  <!-- End sticky header -->
+  <form action="{{ url_for('rate') }}" method="post" class="space-y-6 mt-4">
+    <!-- Hidden fields to persist state and mapping -->
+    <input type="hidden" name="file" value="{{ file_id }}">
+    <input type="hidden" name="file_col" value="{{ file_col }}">
+    <input type="hidden" name="code_snippet_plus_col" value="{{ code_snippet_plus_col }}">
+    <input type="hidden" name="code_snippet_minu_col" value="{{ code_snippet_minus_col }}">
+    <input type="hidden" name="comment_col" value="{{ comment_col }}">
+
+      <div class="bg-gray-700 rounded-lg p-4 mb-6">
+        <div class="flex justify-between items-center text-white mb-2">
+          <p class="font-bold">Code Snippet -10: </p>
+        </div>
+        <p class="whitespace-pre-wrap text-white mb-4">{{ current_group["code_snippet_minus"] }}</p>
+      </div>
+    
+    
+
+      <div class="bg-gray-700 rounded-lg p-4 mb-6">
+        <div class="flex justify-between items-center text-white mb-2">
+          <p class="font-bold">Comment : </p>
+        </div>
+        <p class="whitespace-pre-wrap text-white mb-4">{{ current_group["comment"] }}</p>
+      </div>
+      
+      <div class="bg-gray-700 rounded-lg p-4 mb-6">
+        <div class="flex justify-between items-center text-white mb-2">
+          <p class="font-bold">Code Snippet +10 : </p>
+        </div>
+        <p class="whitespace-pre-wrap text-white mb-4">{{ current_group["code_snippet_plus"] }}</p>
+      </div>
+
+    <!-- Loop over all responses in the current group -->
+    {% for llm in llm_col %}
+     
+          <div class="bg-gray-700 rounded-lg p-4 mb-6">
+            <div class="flex justify-between items-center text-white mb-2">
+              <p class="font-bold">{{llm}}</p>
+            </div>
+
+             <!-- comment of llm -->
+              <div class="flex justify-between items-center text-white mb-2">
+                  <p class="font-bold">Comment : </p>
+              </div>
+               <p class="whitespace-pre-wrap text-white mb-4">{{ current_group[llm] }}</p>
+
+
+             {% set idx = loop.index0 %}
+           {% for j in range(0,5) %}
+            <!-- <p class="whitespace-pre-wrap text-white mb-4">{{ llm_question[j] }}</p> -->
+            
+            <!-- Rating inputs for this response -->
+            
+              <div class="mb-4">
+                <span class="block mb-2 font-semibold text-white">{{llm_question[j]}}:</span>
+                <div class="flex space-x-4">
+                  {% for rating in range(1, 11) %}
+                    <label class="flex items-center space-x-2 cursor-pointer text-white">
+                      <input type="radio"
+                            name="{{ llm}}_{{ j }}"
+                            value="{{ rating }}"
+                            required
+                            class="form-radio h-5 w-5 text-green-400 focus:ring-green-400 transition duration-150">
+                      <span class="text-sm">{{ rating }}</span>
+                    </label>
+                  {% endfor %}
+                </div>
+              </div>
+              {% endfor %}
+             
+              <!-- overall rating -->
+              <div class="mb-4">
+                <span class="block mb-2 font-semibold text-white">OverAll rating:</span>
+                <div class="flex space-x-4">
+                  {% for rating in range(1, 11) %}
+                    <label class="flex items-center space-x-2 cursor-pointer text-white">
+                      <input type="radio"
+                            name="{{ llm }}_overall_rating"
+                            value="{{ rating }}"
+                            required
+                            class="form-radio h-5 w-5 text-green-400 focus:ring-green-400 transition duration-150">
+                      <span class="text-sm">{{ rating }}</span>
+                    </label>
+                  {% endfor %}
+                </div>
+              </div>
+
+            <!-- Feedback input for this LLM -->
+              <input type="text" name="{{ llm }}_feedback" class="w-full p-2 bg-gray-800 text-white rounded focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Enter your feedback here" required>
+            </div>
+      {% endfor %}
+      
+    <div class="flex justify-between">
+      <button type="submit" name="action" value="prev" class="px-4 py-2 bg-gray-600 hover:bg-gray-500 rounded text-white">Previous Query</button>
+      <button type="submit" name="action" value="next" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded text-white">
+        {% if current_group_idx == total_groups - 1 %}
+          Finish
+        {% else %}
+          Next Query
+        {% endif %}
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}
